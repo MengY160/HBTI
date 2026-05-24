@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBTI - 用人格類型理解健康行為 (桌面電腦版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animated-bg {
+            background: linear-gradient(-45deg, #ff7675, #74b9ff, #a29bfe, #ffeaa7);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .app-screen { display: none; min-height: 100vh; width: 100%; }
+        .app-screen.active { display: flex; }
+        
+        /* 超稀有成就金色微光呼吸特效 */
+        @keyframes goldenShimmer {
+            0% { opacity: 0.85; transform: scale(1); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+            50% { opacity: 1; transform: scale(1.02); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
+            100% { opacity: 0.85; transform: scale(1); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+        }
+        .rare-gold-badge {
+            animation: goldenShimmer 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-[#F6F6F9] text-[#2D3436] font-sans antialiased selection:background-transparent">
+
+    <div id="screen-splash" class="app-screen animated-bg flex-col items-center justify-center p-6 text-white text-center">
+        <div class="space-y-6 max-w-md">
+            <div class="w-28 h-28 bg-white/20 backdrop-blur-md rounded-3xl mx-auto flex items-center justify-center shadow-xl border border-white/30">
+                <span class="text-5xl font-black tracking-wider">HBTI</span>
+            </div>
+            
+            <h1 class="text-3xl font-black tracking-tight">Health Behavior Type Indicator</h1>
+            <p class="text-lg opacity-85">桌面電腦專業診斷系統</p>
+            <div class="h-12 flex items-center justify-center">
+                <p id="splash-ticker" class="text-lg font-medium opacity-95 transition-opacity duration-500"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-onboarding" class="app-screen flex-col items-center justify-between p-8 bg-white">
+       
+        <div class="w-full flex justify-between items-center py-2 max-w-4xl mx-auto">
+            <span class="font-black text-2xl text-[#A29BFE]">HBTI Pro</span>
+            <div class="flex gap-1.5" id="onboard-dots">
+                <span class="w-8 h-2 rounded-full bg-[#A29BFE] transition-all" id="dot-0"></span>
+                <span class="w-2 h-2 rounded-full bg-gray-200 transition-all" id="dot-1"></span>
+                <span class="w-2 h-2 rounded-full bg-gray-200 transition-all" id="dot-2"></span>
+            </div>
+        </div>
+        
+        <div class="w-full max-w-xl my-auto text-center space-y-8">
+            <div id="onboard-content" class="transition-all duration-300 transform translate-y-0">
+                </div>
+        </div>
+
+        <div class="w-full max-w-md mx-auto pt-4">
+            <button id="btn-onboard-next" onclick="nextOnboard()" class="w-full py-4 bg-[#2D3436] text-white font-bold rounded-2xl shadow-lg hover:bg-black active:scale-[0.98] transition-all text-lg">繼續探索</button>
+        </div>
+    </div>
+
+    <div id="screen-test-start" class="app-screen flex-col items-center justify-between p-8 bg-[#F6F6F9]">
+        <div class="w-full max-w-xl mx-auto my-auto space-y-8 text-center">
+            <div class="space-y-4">
+                <div class="inline-flex p-5 bg-amber-100 text-amber-500 rounded-3xl mb-2">
+                    <i data-lucide="sparkles" class="w-10 h-10"></i>
+                </div>
+                <h2 class="text-4xl font-black tracking-tight">準備好面對真實的自我了嗎？</h2>
+                <p class="text-gray-500 text-lg">這份量化診斷包含 <span class="font-bold text-gray-800">10 道情境題</span>，專為大螢幕與深度行為心理學設計。</p>
+            </div>
+            
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4 text-left max-w-md mx-auto">
+                <div class="flex gap-3 items-start text-sm">
+                    <span class="text-green-500 font-bold text-base">✓</span>
+                    <p class="text-gray-600 font-medium">沒有任何標準答案，請依照你在高壓或放鬆狀態下的直覺作答。</p>
+                </div>
+         
+                <div class="flex gap-3 items-start text-sm">
+                    <span class="text-green-500 font-bold text-base">✓</span>
+                    <p class="text-gray-600 font-medium">越誠實面對日常作息鬼故事，後續的 AI 吐槽模組精準度越高。</p>
+                </div>
+            </div>
+        </div>
+      
+        <button onclick="startTest()" class="w-full max-w-md mx-auto py-4 bg-[#A29BFE] text-white font-bold rounded-2xl shadow-lg text-lg hover:bg-[#8f87ea] active:scale-[0.98] transition-all mb-4">開始行為診斷</button>
+    </div>
+
+    <div id="screen-test" class="app-screen flex-col justify-between p-8 bg-[#F6F6F9]">
+        <div class="w-full max-w-2xl mx-auto space-y-8">
+            <div class="space-y-3">
+                <div class="flex justify-between text-xs font-black text-gray-400 tracking-widest uppercase">
+                    <span>HBTI Advanced Diagnostic Suite</span>
+                    <span id="test-progress-text">1 / 10</span>
+                </div>
+                <div class="w-full h-3 bg-gray-200/70 rounded-full overflow-hidden">
+                    <div id="test-progress-bar" class="h-full bg-[#A29BFE] transition-all duration-300" style="width: 10%"></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-10 rounded-3xl border border-gray-100 shadow-md min-h-[180px] flex items-center justify-center text-center relative overflow-hidden">
+                <h3 id="test-question-title" class="text-2xl font-black text-gray-800 leading-snug px-4"></h3>
+            </div>
+
+            <div id="test-feedback-container" class="h-6 flex items-center justify-center">
+                 <p id="test-feedback" class="text-base font-black text-amber-500 opacity-0 transition-opacity duration-300"></p>
+            </div>
+
+            <div id="test-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div>
+        </div>
+        <div class="text-center text-xs text-gray-400 font-bold tracking-wider py-4">選擇後系統將自動記錄並分析切換至下一題</div>
+    </div>
+
+    <div id="screen-result" class="app-screen flex-col items-center p-8 overflow-y-auto hide-scrollbar bg-[#F6F6F9]">
+        <div class="w-full max-w-2xl space-y-8 py-6 mx-auto">
+            <div class="text-center space-y-1">
+                <span class="text-xs font-black tracking-widest text-gray-400 uppercase">DIAGNOSTIC COMPLETE</span>
+                <h2 class="text-3xl font-black text-gray-900">全面健康人格圖譜已生成</h2>
+            </div>
+
+            <div id="result-card" class="rounded-3xl p-8 text-white space-y-6 shadow-2xl relative overflow-hidden transition-all duration-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div id="result-code" class="text-4xl font-black tracking-tighter">EMO × COZY</div>
+                        <div id="result-title" class="text-xl font-bold opacity-90 mt-1">內耗療癒型</div>
+                    </div>
+                    <span class="px-4 py-1.5 bg-white/20 backdrop-blur-md border border-white/20 text-xs font-black rounded-full uppercase tracking-wider">PRO CARD</span>
+                </div>
+
+                <div class="border-t border-white/20 pt-5">
+                    <p class="text-xs font-black uppercase opacity-60 mb-2 tracking-widest">性格核心分析</p>
+                    <p id="result-analysis" class="text-base font-medium leading-relaxed opacity-95"></p>
+                </div>
+
+                <div>
+                    <p class="text-xs font-black uppercase opacity-60 mb-2 tracking-widest">行為特徵標籤</p>
+                    <div id="result-tags" class="flex flex-wrap gap-2.5">
+                    </div>
+                </div>
+
+                <div class="bg-black/15 backdrop-blur-sm p-5 rounded-2xl border border-white/10">
+                    <p class="text-xs font-black uppercase opacity-70 mb-1.5 tracking-wider">💡 生存核心指引</p>
+                    <p id="result-advice" class="text-base font-semibold leading-relaxed"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button onclick="shareCard()" class="w-full py-4 bg-white border border-gray-200 text-gray-800 font-bold rounded-2xl shadow-sm flex items-center justify-center gap-2 hover:bg-gray-50 active:scale-[0.98] transition-all">
+                    <i data-lucide="share-2" class="w-5 h-5"></i> 分享診斷報告
+                </button>
+                <button onclick="enterDashboard()" class="w-full py-4 bg-[#2D3436] text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 hover:bg-black active:scale-[0.98] transition-all text-lg">
+                    進入大螢幕控制台 <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-home" class="app-screen bg-[#F6F6F9] flex-row h-screen overflow-hidden">
+        
+        <aside class="w-64 bg-white border-r border-gray-200/80 flex flex-col justify-between p-6 z-30">
+            <div class="space-y-8">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#A29BFE] rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-[#A29BFE]/20">H</div>
+                    <div>
+                        <h1 class="font-black text-base text-gray-900 tracking-tight">HBTI Dashboard</h1>
+                        <p class="text-[10px] font-bold text-gray-400 tracking-wider">v2.0 PRO DESKTOP</p>
+                    </div>
+                </div>
+
+                <nav class="space-y-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-[#A29BFE] bg-[#A29BFE]/10 transition-all text-left">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>生存盤儀表</span>
+                    </button>
+                    <button onclick="switchTab('overview')" id="nav-overview" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-50 transition-all text-left">
+                        <i data-lucide="users" class="w-5 h-5"></i><span>所有人格總覽</span>
+                    </button>
+                    <button onclick="switchTab('chat')" id="nav-chat" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-50 transition-all text-left">
+                        <i data-lucide="message-square-code" class="w-5 h-5"></i><span>日常吐槽 AI</span>
+                    </button>
+                    <button onclick="switchTab('badges')" id="nav-badges" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-50 transition-all text-left">
+                        <i data-lucide="award" class="w-5 h-5"></i><span>成就榮譽牆</span>
+                    </button>
+                    <button onclick="switchTab('retest')" id="nav-retest" class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-50 transition-all text-left mt-4 border border-dashed border-gray-200">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i><span>定期狀態檢測</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex items-center gap-3">
+                <div class="w-9 h-9 bg-gray-200 rounded-xl flex items-center justify-center font-black text-sm text-gray-600 uppercase" id="user-avatar-code">U</div>
+                <div class="overflow-hidden">
+                    <h4 class="text-xs font-black text-gray-800 truncate" id="user-profile-name">測試玩家</h4>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">當前主要特徵</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto p-8 hide-scrollbar h-full">
+            <div class="max-w-4xl mx-auto space-y-6">
+                
+                <div id="subview-dashboard" class="space-y-6">
+                    
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-sm flex items-center justify-between">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-100">我的 HBTI 健康人格</span>
+                            <h2 id="dashboard-user-personality" class="text-3xl font-black">載入中...</h2>
+                        </div>
+                        <div class="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
+                            <i data-lucide="user-check" class="w-8 h-8"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between border-b border-gray-200/60 pb-4">
+                        <div>
+                            <h4 class="text-xs font-black tracking-widest text-gray-400 uppercase">PERSONAL SURVIVAL METRICS</h4>
+                            <h2 id="dash-status-title" class="text-2xl font-black mt-0.5 text-gray-900">DEAD 今日狀態</h2>
+                        </div>
+                        <span id="dash-status-desc" class="px-4 py-1.5 bg-amber-100 text-amber-700 font-bold text-sm rounded-full shadow-sm">核心行為模式載入中</span>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                        <h3 class="text-sm font-black text-gray-400 tracking-wider">今日生存值儀表板</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="gauge-container">
+                            </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">⚡</span>
+                            <h3 class="text-sm font-black text-gray-400 tracking-wider">即時生存狀態簽到</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-2">
+                                <div class="flex justify-between text-xs font-bold tracking-wider">
+                                    <span class="text-gray-400">目前心理狀態</span>
+                                    <span id="log-mood-val" class="text-[#A29BFE] font-black">未登錄</span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2 text-xl">
+                                    <button onclick="logSurvivalStat('mood', '穩定', this)" class="py-2.5 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center filter grayscale hover:grayscale-0 focus:grayscale-0 shadow-sm">😎</button>
+                                    <button onclick="logSurvivalStat('mood', '焦慮', this)" class="py-2.5 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center filter grayscale hover:grayscale-0 focus:grayscale-0 shadow-sm">🤯</button>
+                                    <button onclick="logSurvivalStat('mood', '崩潰', this)" class="py-2.5 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center filter grayscale hover:grayscale-0 focus:grayscale-0 shadow-sm">🫠</button>
+                                    <button onclick="logSurvivalStat('mood', '超棒', this)" class="py-2.5 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center filter grayscale hover:grayscale-0 focus:grayscale-0 shadow-sm">🔥</button>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-2">
+                                <div class="flex justify-between text-xs font-bold tracking-wider">
+                                    <span class="text-gray-400">昨晚睡眠長度</span>
+                                    <span id="log-sleep-val" class="text-[#74B9FF] font-black">未登錄</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+                                    <button onclick="logSurvivalStat('sleep', '飽足 (>7h)', this)" class="py-3 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center text-gray-500 shadow-sm">🛌 飽足</button>
+                                    <button onclick="logSurvivalStat('sleep', '略少 (4-6h)', this)" class="py-3 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center text-gray-500 shadow-sm">⏰ 略少</button>
+                                    <button onclick="logSurvivalStat('sleep', '爆肝 (<3h)', this)" class="py-3 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center text-gray-500 shadow-sm">💀 爆肝</button>
+                                </div>
+                            </div>
+
+                             <div class="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-2">
+                                <div class="flex justify-between text-xs font-bold tracking-wider">
+                                    <span class="text-gray-400">今日純水灌溉</span>
+                                    <span id="log-water-val" class="text-[#00CEC9] font-black">0 cc</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+                                    <button onclick="addSurvivalWater(300)" class="py-3 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center text-gray-500 shadow-sm">💧 +300cc</button>
+                                    <button onclick="addSurvivalWater(500)" class="py-3 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center text-gray-500 shadow-sm">🥤 +500cc</button>
+                                    <button onclick="resetSurvivalWater()" class="py-3 bg-red-50 text-red-500 border border-red-100 rounded-xl active:scale-[0.95] transition-all text-center shadow-sm">重置</button>
+                                </div>
+                             </div>
+
+                            <div class="bg-gray-50/60 p-4 rounded-2xl border border-gray-100 space-y-2">
+                                <div class="flex justify-between text-xs font-bold tracking-wider">
+                                    <span class="text-gray-400">今日飲食節奏</span>
+                                    <span id="log-diet-val" class="text-amber-500 font-black">未登錄</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs font-bold">
+                                    <button onclick="logSurvivalStat('diet', '乾淨原形', this)" class="py-3 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center text-gray-500 shadow-sm">🥗 乾淨</button>
+                                    <button onclick="logSurvivalStat('diet', '正常外食', this)" class="py-3 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center text-gray-500 shadow-sm">🍱 外食</button>
+                                    <button onclick="logSurvivalStat('diet', '邪惡宵夜', this)" class="py-3 bg-white border border-gray-100 rounded-xl active:scale-[0.95] transition-all text-center text-gray-500 shadow-sm">🍗 邪惡</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#A29BFE]/10 border border-[#A29BFE]/20 p-5 rounded-3xl space-y-2 relative">
+                        <div class="flex items-center gap-2 text-xs font-black text-[#74B9FF] uppercase tracking-wider">
+                            <i data-lucide="bot" class="w-4 h-4"></i> AI 觀察室日常吐槽
+                        </div>
+                        <p id="dash-ai-roast" class="text-sm font-bold text-gray-700 leading-relaxed"></p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-black text-gray-400 tracking-wider">專屬健康生存任務</h3>
+                                <span class="text-xs font-bold text-gray-400" id="task-count">0 / 3</span>
+                            </div>
+                            <div id="dash-tasks-list" class="space-y-2.5">
+                                </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm space-y-4">
+                            <div>
+                                <h3 class="text-sm font-black text-gray-800">今日餐盤多巴胺沙盒</h3>
+                                <p class="text-[11px] font-bold text-gray-400 mt-0.5">點擊食材放入下方數位餐盤，即時推演健康傾向</p>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 text-center text-xs font-bold" id="food-dispenser">
+                                </div>
+                            <div class="border-2 border-dashed border-gray-200 bg-gray-50 rounded-2xl p-4 min-h-[100px] flex flex-wrap items-center justify-center gap-3 relative" id="digital-plate">
+                                <span class="text-gray-300 font-bold text-xs pointer-events-none absolute" id="plate-placeholder">餐盤尚無食物...</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-1">
+                                <p id="diet-analysis" class="text-xs font-bold text-gray-500 truncate max-w-[80%]">🍱 放入食物來解鎖飲食傾向...</p>
+                                <button onclick="clearPlate()" class="text-xs font-black text-red-500 hover:underline">清空</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="subview-overview" class="hidden space-y-6">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-sm flex items-center justify-between">
+                        <div class="space-y-1">
+                            <span class="text-xs font-bold uppercase tracking-wider text-indigo-100">我的 HBTI 健康人格</span>
+                            <h2 id="overview-user-personality" class="text-3xl font-black">載入中...</h2>
+                        </div>
+                        <div class="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
+                            <i data-lucide="users" class="w-8 h-8"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-900">HBTI 16型人格總覽圖鑑</h2>
+                        <p class="text-sm font-bold text-gray-400 mt-1">了解不同人格專屬色彩的生存模式與健康傾向。</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="overview-grid-container">
+                        </div>
+                </div>
+
+                <div id="subview-chat" class="hidden bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex-col h-[calc(100vh-120px)] space-y-4">
+                    <div class="flex items-center gap-3 border-b border-gray-200/60 pb-4">
+                        <div class="w-12 h-12 bg-[#A29BFE] rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-sm">AI</div>
+                        <div>
+                            <h3 class="font-black text-base text-gray-800">黑心毒舌健康顧問</h3>
+                            <p class="text-xs font-bold text-green-500 flex items-center gap-1 mt-0.5">
+                                <span class="w-2 h-2 bg-green-500 rounded-full inline-block animate-pulse"></span>線上高強度監控中
+                            </p>
+                        </div>
+                    </div>
+                    <div id="chat-logs" class="flex-1 overflow-y-auto space-y-3.5 pr-2 hide-scrollbar text-sm">
+                        <div class="bg-gray-50 border border-gray-100 p-4 rounded-2xl rounded-tl-sm max-w-[80%] font-medium text-gray-700 leading-relaxed">
+                            你可算來了。今天又是用什麼不可思議的自殘方式活下來的？可以直接跟我承認「我今天又熬夜了」或者任何作息鬼故事。
+                        </div>
+                    </div>
+                    <div class="flex gap-2 bg-gray-50 p-2 rounded-2xl border border-gray-200">
+                        <input type="text" id="chat-input" placeholder="對你的吐槽朋友坦白..." class="flex-1 bg-transparent px-4 py-2 outline-none text-sm font-medium text-gray-700">
+                        <button onclick="sendChatMessage()" class="p-3 bg-[#2D3436] text-white rounded-xl hover:bg-black active:scale-95 transition-all">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="subview-badges" class="space-y-6 hidden">
+                    <div>
+                        <h2 class="text-2xl font-black text-gray-900">HBTI 成就系統控制台</h2>
+                        <p class="text-sm font-bold text-gray-400 mt-1">拒絕平庸打卡！全套網路迷因有感勳章庫已成功載入。</p>
+                    </div>
+                    <div id="badges-grid-container" class="space-y-8">
+                        </div>
+                </div>
+
+                <div id="subview-retest" class="space-y-6 hidden">
+                    <div class="bg-white p-10 rounded-3xl border border-gray-100 shadow-sm max-w-2xl mx-auto text-center space-y-6 mt-8">
+                        <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-3xl mx-auto flex items-center justify-center">
+                            <i data-lucide="refresh-cw" class="w-10 h-10"></i>
+                        </div>
+                        <div class="space-y-3">
+                            <h3 class="font-black text-3xl text-gray-900">定期重新檢測狀態</h3>
+                            <p class="text-gray-500 text-base leading-relaxed max-w-md mx-auto">
+                                生活習慣是一直在改變的。定期使用最初的測驗核心來重新評估，檢視自己在水分、睡眠與情緒管理上是否有所改善！
+                            </p>
+                        </div>
+                        <div class="border-t border-gray-100 pt-8">
+                            <button onclick="retakeTest()" class="bg-[#2D3436] hover:bg-black text-white text-lg font-bold px-10 py-4 rounded-2xl shadow-lg transition-all active:scale-95">
+                                開始重新測驗
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 16 Personality Profile Presets Mapping Definition
+        const PERSONALITIES = {
+            ZZZZ: { name: "睡神", category: "再睡五分鐘型", quote: "世界很吵，我先睡一下。", color: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)", textCol: "#ffffff", tags: ["鬧鐘永遠按掉", "床有引力", "睡眠債永遠還不完"], advice: "你的健康關鍵不是逼自己自律，而是先把欠大自然的睡眠債分期還清。", statusDesc: "床位重力異常過載中", roast: "鬧鐘響了10次還能按掉，床上的地心引力看來在你家最為顯著。有補眠天賦但作息完全就是個謎。", tasks: ["今天在鬧鐘響起第3次內起床", "中午睡午覺不超過30分鐘", "11點半前躺平滑手機不超過5分鐘"] },
+            GOGO: { name: "衝人", category: "今天開始健康型", quote: "新的我從現在開始！", color: "linear-gradient(135deg, #ff793f 0%, #d1ccc0 100%)", textCol: "#ffffff", tags: ["半夜決定人生", "突然運動", "三天後失蹤"], advice: "冷靜點！先不要一口氣把運動器材買齊，健康是一場馬拉松，不是三天特訓班。", statusDesc: "三分鐘熱度高點爆發", roast: "是不是昨晚兩點看影片突然又被激勵了？每次都誓言重啟人生，結果三天後裝備就放在角落生灰塵。", tasks: ["今天運動15分鐘就好（不准過量）", "不要瀏覽任何運動網拍", "把上週買的健康裝備拿出來擦一下"] },
+            EMO: { name: "內耗人", category: "情緒決定健康型", quote: "情緒穩定不了，但晚餐可以點大份。", color: "linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%)", textCol: "#ffffff", tags: ["心情差就亂吃", "熬夜emo", "想很多"], advice: "你的健康關鍵不是逼自己自律，而是先讓情緒找到健康的排解口，別把胃當作心靈垃圾桶。", statusDesc: "內耗指數臨界點", roast: "情緒穩定不下來沒關係，但把外送大份高熱量炸雞當作解藥，隔天量體重會更內耗喔。", tasks: ["今天不進行任何情緒性進食", "心煩時打開深呼吸30秒", "提早30分鐘去睡覺不要亂想"] },
+            CTRL: { name: "控制狂", category: "熱量計算機型", quote: "沒有數據的人生沒有安全感。", color: "linear-gradient(135deg, #0984e3 0%, #74b9ff 100%)", textCol: "#ffffff", tags: ["看營養標示", "愛數據", "健康KPI管理"], advice: "數字只是參考，放過自己一下，太過精準的自律有時候也是另一種焦慮來源。", statusDesc: "數據監控全面綠燈", roast: "你今天是不是又在偷偷計算精確到小數點後兩位的卡路里了？數據很完美，但你的壓力荷爾蒙可能已經超標。", tasks: ["今天有一餐不看營養標示貼紙", "停止記錄體重一天", "做一件毫無計畫的放鬆小事"] },
+            WATR: { name: "水鬼", category: "喝水全靠提醒型", quote: "珍奶也算水吧？", color: "linear-gradient(135deg, #00cec9 0%, #81ecec 100%)", textCol: "#ffffff", tags: ["永遠缺水", "一喝喝超多", "水壺是裝飾品"], advice: "水壺買了就是要打開喝的。定時定量，不要等到身體發出乾旱警告才一口氣灌一公升。", statusDesc: "身體乾旱指數達 80%", roast: "再次嚴正聲明：珍珠奶茶、美式咖啡甚至湯麵的湯，在生理學上都不能完全代替純水！趕快去拿水壺。", tasks: ["完成 3 次每次 300cc 純水灌溉", "把辦公桌上的水壺蓋子打開", "今天少喝一杯手搖飲"] },
+            YUMM: { name: "吃貨", category: "美食第一型", quote: "人生苦短，先吃再說。", color: "linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%)", textCol: "#2D3436", tags: ["情緒靠吃", "超商巡邏員", "拒絕難吃健康餐"], advice: "可以繼續當美食家，但試著加入一些原形食物替代加工品，不要一放鬆就熱量大爆炸。", statusDesc: "超商新品雷達全力運作", roast: "一看到難吃的健康沙拉就皺眉，只要心情不好就用深夜宵夜犒賞自己。超商巡邏得很勤勞嘛！", tasks: ["點餐時主動把炸物換成滷的或烤的", "下午茶只吃一包原味堅果", "拒絕一次邪惡的點心誘惑"] },
+            NOPE: { name: "拖延人", category: "明天開始型", quote: "我知道，但我等等再開始。", color: "linear-gradient(135deg, #b2bec3 0%, #dfe6e9 100%)", textCol: "#2D3436", tags: ["收藏100個健康影片", "一個都沒做", "理論大師"], advice: "最完美的計畫不如最糟糕的執行，今天就挑你收藏夾裡最短的那個燃脂影片跟著動一下。", statusDesc: "理論庫儲存過載", roast: "你的社交軟體收藏夾裡已經躺了成堆的健身、食譜精華影片，打算什麼時候讓它們在現實世界見光？", tasks: ["點開一個收藏的健康影片看並跟做5分鐘", "不要說『明天再說』這四個字", "立刻去喝一杯水，不要拖延"] },
+            HEAL: { name: "養生仔", category: "突然開始保健型", quote: "這杯是養生茶。", color: "linear-gradient(135deg, #55efc4 0%, #00b894 100%)", textCol: "#ffffff", tags: ["枸杞泡水", "保健食品一堆", "中醫安心粉"], advice: "吃保健食品跟喝養生茶很棒，但千萬別一邊熬夜一邊吃護肝片，這叫毫無意義的矛盾行為。", statusDesc: "保溫杯溫控中", roast: "左手保溫杯裡泡枸杞，右手拿著剛熬夜寫完的報告。你到底是想要養生還是想要成仙？偏方別亂聽啦。", tasks: ["今天不看任何未經證實的長輩養生短影音", "吃保健食品時順便配一大杯純水", "在晚上11點半前關燈"] },
+            DEAD: { name: "期中週亡魂", category: "活著就算成功型", quote: "今天活著已經很努力了。", color: "linear-gradient(135deg, #2d3436 0%, #636e72 100%)", textCol: "#ffffff", tags: ["靠咖啡續命", "睡眠消失", "靈魂出竅"], advice: "你現在最不需要的是追求卓越，你只需要最基礎的生理機能維持：好好的吃飯與躺下睡覺。", statusDesc: "靈魂上線率僅存 15%", roast: "眼圈黑得像是化了煙燻妝，身體裡流的血液可能大半都是黑咖啡跟化學能量飲。請向你的肝道歉。", tasks: ["今天吃一頓不配手機的正常晚餐", "喝一杯完全沒有咖啡因的溫水", "閉眼放空 10 分鐘，別管進度了"] },
+            BABY: { name: "巨嬰型", category: "需要人陪才健康型", quote: "有人陪我就去。", color: "linear-gradient(135deg, #fd79a8 0%, #ffb8b8 100%)", textCol: "#ffffff", tags: ["一個人不想運動", "要朋友揪", "社交型健康"], advice: "依賴社交動力不是壞事，但也要試著建立自己獨立的主動權，畢竟身體是你自己的嘛。", statusDesc: "社交雷達同步追蹤中", roast: "沒人陪你就不想去跑步，沒人揪團就乾脆不吃午餐。你是在為別人的眼光健康，還是為自己？", tasks: ["自己一個人去散步或運動 10 分鐘", "主動在群組揪朋友明天喝水", "今天自己決定一餐健康的飲食"] },
+            SOLO: { name: "孤島人", category: "自己活自己的型", quote: "我自己一個人比較舒服。", color: "linear-gradient(135deg, #009432 0%, #ed4c67 100%)", textCol: "#ffffff", tags: ["喜歡自己待著", "健康節奏很私人", "拒絕跟風"], advice: "獨自生活與運動能獲得高層次的專注，但有時候也多注意一下外在世界的健康新知，別跟社會脫節。", statusDesc: "絕對防禦領域全開", roast: "自己安排的步調非常穩健，但如果身體有小警訊，也別總是悶著自己忍耐，偶爾找朋友聊聊舒壓吧。", tasks: ["出門去人多的地方散步 15 分鐘", "和隨便一位人類進行 3 句健康相關對話", "換一條平常沒走過的路線走路"] },
+            DRAM: { name: "戲很多", category: "健康焦慮型", quote: "我是不是快死了？", color: "linear-gradient(135deg, #d63031 0%, #ff7675 100%)", textCol: "#ffffff", tags: ["一點不舒服就查症狀", "Google醫生", "恐慌大師"], advice: "請立刻關掉網頁瀏覽器！Google 上的小毛病描述最後都會導向絕症。相信專業醫生，別自己嚇自己。", statusDesc: "幻覺焦慮症狀攀升中", roast: "手指頭破一塊皮就覺得自己得了罕見疾病。你這不叫健康敏感度高，你這叫內心大劇場加演夜間場。", tasks: ["今天身體微恙時絕對不準搜尋 Google", "做 5 次深呼吸來緩解你的疑病焦慮", "找朋友聊聊垃圾話分散注意力"] },
+            BURN: { name: "燃燒人", category: "拿命換效率型", quote: "DDL前的人類沒有睡眠。", color: "linear-gradient(135deg, #e17055 0%, #e84393 100%)", textCol: "#ffffff", tags: ["爆肝常客", "deadline燃燒", "超高效率"], advice: "我知道你很有效率，但出來混總是要還的。把休息也當作一項必須準時完成的 Deadline 來執行吧。", statusDesc: "爆肝推進器全功率運轉", roast: "為了趕在最後一刻交出最完美的成果，完全把睡眠跟吃飯當作身外之物。你是在拿明天的命換今天的 KPI 嗎？", tasks: ["在今晚 12 點前強迫自己關閉工作視窗", "晚餐時間不准看任何工作訊息", "少喝一杯高濃度續命咖啡"] },
+            COZY: { name: "窩窩人", category: "舒適圈養生型", quote: "今天適合窩著。", color: "linear-gradient(135deg, #f5f6fa 0%, #dcdde1 100%)", textCol: "#2D3436", tags: ["喜歡療癒感", "香氛派", "慢活仔"], advice: "情緒穩定、生活精緻是優點，但是活動量真的太低了。偶爾也要離開舒適的床墊出去流點汗。", statusDesc: "香氛與床墊深度綁定", roast: "香氛蠟燭、療癒音樂倒是一樣不少，生活過得很精緻，但你的每日步數是不是常常連三位數都不到？", tasks: ["離開房間去外面曬太陽走路 10 分鐘", "在床上做一組簡單的伸展拉筋", "今天喝水不只用好看的杯子，要裝滿"] },
+            RUSH: { name: "極限仔", category: "最後一秒型", quote: "現在開始還來得及！", color: "linear-gradient(135deg, #ff7675 0%, #ee5253 100%)", textCol: "#ffffff", tags: ["水一次補2000cc", "運動突然爆做", "爆發力極強"], advice: "身體臟器不是橡皮筋，承受不了你突然的極端負荷。每天做一點點，比積壓到最後一刻大爆發好一萬倍。", statusDesc: "最後一秒腎上腺素噴發", roast: "整天不喝水，到了晚上突然一口氣灌下兩公升；一週不動，週末突然去重訓到肌肉拉傷。你在整你的肉體嗎？", tasks: ["今天每隔 2 小時規律喝水 200cc", "運動不要超過 30 分鐘，適可而止", "規律吃三餐，不要一餐暴食"] },
+            NPCS: { name: "NPC", category: "身體自動運行型", quote: "原來我今天沒吃飯。", color: "linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%)", textCol: "#2D3436", tags: ["忘記吃飯", "沒感覺自己累", "自律神經斷線"], advice: "你需要定鬧鐘來提醒自己像個正常人一樣生活。感到累和餓並非弱點，那是身體的求救訊號。", statusDesc: "背景程式自動掛網中", roast: "忙起來完全就是進入無感狀態，忘記喝水、忘記吃飯，連自己已經累到快昏倒都不知道。肉體在哭泣了喔。", tasks: ["設定一個定時鬧鐘，響了就去吃飯", "每小時強迫自己站起來活動 1 分鐘", "摸摸自己的脖子看是不是太緊繃了"] }
+        };
+
+        // 全套成就系統大全核心資料庫 (16大方向)
+        const BADGES_DATABASE = [
+            {
+                category: "一、睡眠系成就（ZZZZ / DEAD / BURN）",
+                items: [
+                    { n: "《今天有睡覺》", c: "基礎睡眠", u: true },
+                    { n: "《成功關燈》", c: "基礎睡眠", u: true },
+                    { n: "《人類正常睡眠》", c: "基礎睡眠", u: false },
+                    { n: "《睡超過6小時》", c: "基礎睡眠", u: true },
+                    { n: "《沒有熬夜奇蹟》", c: "基礎睡眠", u: false },
+                    { n: "《凌晨玩家》", c: "熬夜系", u: true },
+                    { n: "《夜行生物》", c: "熬夜系", u: true },
+                    { n: "《天亮了我還醒著》", c: "熬夜系", u: false },
+                    { n: "《爆肝預備軍》", c: "熬夜系", u: true },
+                    { n: "《睡眠已離線》", c: "熬夜系", u: false },
+                    { n: "《睡到自然醒》", c: "補眠系", u: true },
+                    { n: "《床的俘虜》", c: "補眠系", u: true },
+                    { n: "《再睡五分鐘》", c: "補眠系", u: true },
+                    { n: "《補眠大師》", c: "補眠系", u: false },
+                    { n: "《今日不上線》", c: "補眠系", u: false }
+                ]
+            },
+            {
+                category: "二、喝水系成就（WATR）",
+                items: [
+                    { n: "《今天有喝水》", c: "基礎喝水", u: true },
+                    { n: "《水分回歸》", c: "基礎喝水", u: false },
+                    { n: "《沒有乾掉》", c: "基礎喝水", u: true },
+                    { n: "《人體70%水分》", c: "基礎喝水", u: false },
+                    { n: "《終於想起水壺》", c: "基礎喝水", u: true },
+                    { n: "《水壺裝飾品》", c: "極限缺水系", u: true },
+                    { n: "《珍奶也是水》", c: "極限缺水系", u: true },
+                    { n: "《口渴才想到》", c: "極限缺水系", u: false },
+                    { n: "《乾燥人類》", c: "極限缺水系", u: true },
+                    { n: "《頭痛警告》", c: "極限缺水系", u: false },
+                    { n: "《一次灌爆》", c: "補水爆衝系", u: false },
+                    { n: "《2000cc瞬間消失》", c: "補水爆衝系", u: false },
+                    { n: "《今天突然很健康》", c: "補水爆衝系", u: true },
+                    { n: "《極限補水》", c: "補水爆衝系", u: false }
+                ]
+            },
+            {
+                category: "三、飲食系成就（YUMM）",
+                items: [
+                    { n: "《今天有吃早餐》", c: "正常飲食", u: true },
+                    { n: "《正常人類三餐》", c: "正常飲食", u: false },
+                    { n: "《有吃菜》", c: "正常飲食", u: true },
+                    { n: "《成功拒絕宵夜》", c: "正常飲食", u: false },
+                    { n: "《今天不是炸物》", c: "正常飲食", u: false },
+                    { n: "《超商巡邏員》", c: "吃貨系", u: true },
+                    { n: "《宵夜召喚師》", c: "吃貨系", u: true },
+                    { n: "《甜點續命》", c: "吃貨系", u: false },
+                    { n: "《奶茶共生體》", c: "吃貨系", u: true },
+                    { n: "《吃完才後悔》", c: "吃貨系", u: true },
+                    { n: "《emo套餐》", c: "情緒進食", u: true },
+                    { n: "《壓力型暴食》", c: "情緒進食", u: false },
+                    { n: "《心情不好先吃》", c: "情緒進食", u: true },
+                    { n: "《卡路里治療法》", c: "情緒進食", u: false }
+                ]
+            },
+            {
+                category: "四、運動系成就（GOGO / RUSH）",
+                items: [
+                    { n: "《終於出門運動》", c: "初學者系", u: false },
+                    { n: "《今天有動》", c: "初學者系", u: true },
+                    { n: "《不是床上運動》", c: "初學者系", u: false },
+                    { n: "《活著走完5000步》", c: "初學者系", u: true },
+                    { n: "《今天開始改變人生》", c: "熱血三分鐘", u: true },
+                    { n: "《運動Day1》", c: "熱血三分鐘", u: true },
+                    { n: "《三日熱血》", c: "熱血三分鐘", u: false },
+                    { n: "《突然健身仔》", c: "熱血三分鐘", u: false },
+                    { n: "《明天再休息》", c: "熱血三分鐘", u: true },
+                    { n: "《突然爆做》", c: "極限運動系", u: false },
+                    { n: "《運動兩小時後消失》", c: "極限運動系", u: false },
+                    { n: "《今天燃燒自己》", c: "極限運動系", u: true },
+                    { n: "《肌肉痛到懷疑人生》", c: "極限運動系", u: true }
+                ]
+            },
+            {
+                category: "五、情緒系成就（EMO / COZY）",
+                items: [
+                    { n: "《今天沒亂想》", c: "內耗系", u: false },
+                    { n: "《停止內耗30分鐘》", c: "內耗系", u: true },
+                    { n: "《腦內小劇場關閉》", c: "內耗系", u: false },
+                    { n: "《沒有深夜emo》", c: "內耗系", u: false },
+                    { n: "《今天適合窩著》", c: "療癒系", u: true },
+                    { n: "《被棉被封印》", c: "療癒系", u: true },
+                    { n: "《香氛續命》", c: "療癒系", u: false },
+                    { n: "《療癒模式ON》", c: "療癒系", u: true },
+                    { n: "《今天沒崩潰》", c: "穩定情緒系", u: true },
+                    { n: "《成功穩住情緒》", c: "穩定情緒系", u: false },
+                    { n: "《沒有突然想消失》", c: "穩定情緒系", u: false },
+                    { n: "《情緒存活成功》", c: "穩定情緒系", u: true }
+                ]
+            },
+            {
+                category: "六、拖延系成就（NOPE）",
+                items: [
+                    { n: "《等等再開始》", c: "拖延日常", u: true },
+                    { n: "《收藏系健康仔》", c: "拖延日常", u: true },
+                    { n: "《理論王者》", c: "拖延日常", u: false },
+                    { n: "《明天一定》", c: "拖延日常", u: true },
+                    { n: "《居然真的做了》", c: "真正開始系", u: false },
+                    { n: "《拖延結束1小時》", c: "真正開始系", u: false },
+                    { n: "《開始大於完美》", c: "真正開始系", u: true },
+                    { n: "《第一次執行成功》", c: "真正開始系", u: false }
+                ]
+            },
+            {
+                category: "七、養生系成就（HEAL）",
+                items: [
+                    { n: "《今天有養生》", c: "養生入門", u: true },
+                    { n: "《保健食品開封》", c: "養生入門", u: true },
+                    { n: "《枸杞泡水成功》", c: "養生入門", u: false },
+                    { n: "《早C晚A研究員》", c: "養生入門", u: false },
+                    { n: "《開始看中醫》", c: "養生進階", u: false },
+                    { n: "《氣色變好了》", c: "養生進階", u: true },
+                    { n: "《人體調理模式》", c: "養生進階", u: false },
+                    { n: "《今天不冰飲》", c: "養生進階", u: false },
+                    { n: "《邊熬夜邊養生》", c: "偽養生系", u: true },
+                    { n: "《保健食品續命》", c: "偽養生系", u: true },
+                    { n: "《養生但不睡覺》", c: "偽養生系", u: false },
+                    { n: "《朋克養生玩家》", c: "偽養生系", u: true }
+                ]
+            },
+            {
+                category: "八、爆肝系成就（BURN / DEAD）",
+                items: [
+                    { n: "《DDL戰士》", c: "爆肝日常", u: true },
+                    { n: "《今天也在燃燒》", c: "爆肝日常", u: true },
+                    { n: "《靠咖啡活著》", c: "爆肝日常", u: true },
+                    { n: "《睡眠拿去換效率》", c: "爆肝日常", u: false },
+                    { n: "《活過期中週》", c: "生存模式", u: true },
+                    { n: "《靈魂還在線嗎》", c: "生存模式", u: true },
+                    { n: "《今天沒倒下》", c: "生存模式", u: true },
+                    { n: "《極限生存成功》", c: "生存模式", u: false },
+                    { n: "《72小時存活》", c: "地獄模式", u: false },
+                    { n: "《人體不是這樣用的》", c: "地獄模式", u: false },
+                    { n: "《快樂燃燒》", c: "地獄模式", u: true },
+                    { n: "《肝：我累了》", c: "地獄模式", u: false }
+                ]
+            },
+            {
+                category: "九、社交系成就（BABY / SOLO）",
+                items: [
+                    { n: "《有人陪我才去》", c: "BABY系", u: true },
+                    { n: "《被朋友拖出門》", c: "BABY系", u: true },
+                    { n: "《一起比較有動力》", c: "BABY系", u: false },
+                    { n: "《社交型健康》", c: "BABY系", u: true },
+                    { n: "《單機玩家》", c: "SOLO系", u: true },
+                    { n: "《安靜生活》", c: "SOLO系", u: true },
+                    { n: "《一個人比較舒服》", c: "SOLO系", u: true },
+                    { n: "《孤島模式ON》", c: "SOLO系", u: false }
+                ]
+            },
+            {
+                category: "十、健康焦慮系（DRAM）",
+                items: [
+                    { n: "《Google醫生》", c: "焦慮日常", u: true },
+                    { n: "《這是不是癌症》", c: "焦慮日常", u: false },
+                    { n: "《查症狀查到凌晨》", c: "焦慮日常", u: true },
+                    { n: "《健康焦慮啟動》", c: "焦慮日常", u: true },
+                    { n: "《今天沒有亂查》", c: "理智回歸", u: false },
+                    { n: "《停止腦補》", c: "理智回歸", u: true },
+                    { n: "《其實只是太累》", c: "理智回歸", u: true },
+                    { n: "《沒有自己嚇自己》", c: "理智回歸", u: false }
+                ]
+            },
+            {
+                category: "十一、NPC系成就（NPCS）",
+                items: [
+                    { n: "《原來今天沒吃飯》", c: "忘記照顧自己", u: true },
+                    { n: "《忙到忘記時間》", c: "忘記照顧自己", u: true },
+                    { n: "《身體自動運行》", c: "忘記照顧自己", u: true },
+                    { n: "《低電量模式》", c: "忘記照顧自己", u: false },
+                    { n: "《今天有休息》", c: "終於注意到自己", u: false },
+                    { n: "《發現自己累了》", c: "終於注意到自己", u: true },
+                    { n: "《開始照顧身體》", c: "終於注意到自己", u: false },
+                    { n: "《不是機器人》", c: "終於注意到自己", u: true }
+                ]
+            },
+            {
+                category: "十二、隱藏特殊成就",
+                items: [
+                    { n: "《凌晨三點還在線》", c: "隱藏特殊", u: false, isHidden: true },
+                    { n: "《咖啡血液》", c: "隱藏特殊", u: true, isHidden: true },
+                    { n: "《今天沒有珍奶》", c: "隱藏特殊", u: false, isHidden: true },
+                    { n: "《真的12點前睡了》", c: "隱藏特殊", u: false, isHidden: true },
+                    { n: "《喝水居然成功》", c: "隱藏特殊", u: true, isHidden: true },
+                    { n: "《今天沒發瘋》", c: "隱藏特殊", u: true, isHidden: true },
+                    { n: "《活著就是勝利》", c: "隱藏特殊", u: true, isHidden: true },
+                    { n: "《情緒穩定的一天》", c: "隱藏特殊", u: false, isHidden: true },
+                    { n: "《人類運作成功》", c: "隱藏特殊", u: true, isHidden: true },
+                    { n: "《今天像正常人》", c: "隱藏特殊", u: false, isHidden: true }
+                ]
+            },
+            {
+                category: "十三、連續登入成就",
+                items: [
+                    { n: "《生存第1天》", c: "時光線紀錄", u: true },
+                    { n: "《還在努力活著》", c: "時光線紀錄", u: true },
+                    { n: "《健康沒有放棄你》", c: "時光線紀錄", u: false },
+                    { n: "《連續存活7天》", c: "時光線紀錄", u: false },
+                    { n: "《已經撐一個月》", c: "時光線紀錄", u: false }
+                ]
+            },
+            {
+                category: "十四、節日限定成就",
+                items: [
+                    { n: "《期中亡魂》", c: "期中週限定", u: true },
+                    { n: "《靈魂出竅中》", c: "期中週限定", u: true },
+                    { n: "《考前爆肝》", c: "期中週限定", u: false },
+                    { n: "《作息再次毀滅》", c: "開學季限定", u: true },
+                    { n: "《早八生存挑戰》", c: "開學季限定", u: false },
+                    { n: "《被床封印》", c: "冬天限定", u: true },
+                    { n: "《冬眠模式》", c: "冬天限定", u: false }
+                ]
+            },
+            {
+                category: "十五、人格專屬稱號",
+                items: [
+                    { n: "《睡眠之神》", c: "ZZZZ 專屬", u: false, isSpecial: true },
+                    { n: "《床界霸主》", c: "ZZZZ 專屬", u: false, isSpecial: true },
+                    { n: "《DDL燃燒者》", c: "BURN 專屬", u: false, isSpecial: true },
+                    { n: "《過勞戰神》", c: "BURN 專屬", u: false, isSpecial: true },
+                    { n: "《深夜思想家》", c: "EMO 專屬", u: false, isSpecial: true },
+                    { n: "《情緒藝術家》", c: "EMO 專屬", u: false, isSpecial: true },
+                    { n: "《人體數據機》", c: "CTRL 專屬", u: false, isSpecial: true },
+                    { n: "《KPI管理大師》", c: "CTRL 專屬", u: false, isSpecial: true },
+                    { n: "《生存模式玩家》", c: "DEAD 專屬", u: false, isSpecial: true },
+                    { n: "《靠意志力活著》", c: "DEAD 專屬", u: false, isSpecial: true }
+                ]
+            },
+            {
+                category: "十六、超稀有成就（金色特效彩蛋）",
+                items: [
+                    { n: "《真的連續早睡7天》", c: "超稀有彩蛋", u: false, r: true },
+                    { n: "《一天喝滿2000cc》", c: "超稀有彩蛋", u: false, r: true },
+                    { n: "《完全沒熬夜的一週》", c: "超稀有彩蛋", u: false, r: true },
+                    { n: "《沒有拖延的一天》", c: "超稀有彩蛋", u: false, r: true },
+                    { n: "《真正健康的人類》", c: "超稀有彩蛋", u: false, r: true }
+                ]
+            }
+        ];
+
+        // 10 Diagnostic Question Bank
+        const QUESTION_BANK = [
+            { id: 1, q: "凌晨兩點了，但你隔天早八。", a: [{ t: "再滑一下手機等等睡", p: "EMO" }, { t: "查「熬夜會不會早死」", p: "DRAM" }, { t: "泡咖啡準備撐通宵", p: "BURN" }, { t: "先睡，明天再說", p: "ZZZZ" }] },
+            { id: 2, q: "你突然決定要開始健康生活。", a: [{ t: "一口氣買齊運動用品", p: "GOGO" }, { t: "收藏一堆健康影片", p: "NOPE" }, { t: "先研究營養素", p: "CTRL" }, { t: "發限動宣告人生重啟", p: "RUSH" }] },
+            { id: 3, q: "今天壓力超大，你會：", a: [{ t: "狂吃東西", p: "EMO" }, { t: "狂喝咖啡", p: "DEAD" }, { t: "躺床放空", p: "COZY" }, { t: "查自己是不是過勞", p: "DRAM" }] },
+            { id: 4, q: "朋友約你運動。", a: [{ t: "有人陪才想去", p: "BABY" }, { t: "我比較喜歡自己運動", p: "SOLO" }, { t: "運動前先吃東西", p: "YUMM" }, { t: "今天活著就很好了", p: "DEAD" }] },
+            { id: 5, q: "你今天下午才發現自己沒喝水。", a: [{ t: "一次狂灌很多", p: "RUSH" }, { t: "難怪頭在痛", p: "WATR" }, { t: "打開喝水提醒App", p: "CTRL" }, { t: "珍奶也算吧", p: "YUMM" }] },
+            { id: 6, q: "看到健康餐時，你的想法是：", a: [{ t: "看起來很難吃", p: "YUMM" }, { t: "我該開始養生了", p: "HEAL" }, { t: "熱量多少？", p: "CTRL" }, { t: "截圖收藏但不會做", p: "NOPE" }] },
+            { id: 7, q: "期中週的你通常：", a: [{ t: "靠咖啡活著", p: "DEAD" }, { t: "Deadline燃燒模式", p: "BURN" }, { t: "開始吞保健食品", p: "HEAL" }, { t: "靈魂已經出竅", p: "NPCS" }] },
+            { id: 8, q: "你對身體不舒服的反應：", a: [{ t: "Google所有症狀", p: "DRAM" }, { t: "睡一覺再說", p: "ZZZZ" }, { t: "沒差，我還能撐", p: "NPCS" }, { t: "開始檢討飲食作息", p: "CTRL" }] },
+            { id: 9, q: "你的理想假日：", a: [{ t: "睡到自然醒", p: "ZZZZ" }, { t: "在家療癒耍廢", p: "COZY" }, { t: "自己安靜待著", p: "SOLO" }, { t: "突然安排超滿行程", p: "GOGO" }] },
+            { id: 10, q: "你最容易半途而廢的是：", a: [{ t: "健身計畫", p: "GOGO" }, { t: "健康作息", p: "ZZZZ" }, { t: "喝水習慣", p: "WATR" }, { t: "收藏的健康影片", p: "NOPE" }] },
+            { id: 11, q: "當朋友說「最近變健康欸」：", a: [{ t: "我有在吃保健食品", p: "HEAL" }, { t: "我有算熱量", p: "CTRL" }, { t: "我昨天突然運動超久", p: "RUSH" }, { t: "我最近比較沒崩潰", p: "EMO" }] },
+            { id: 12, q: "你最常講的一句話：", a: [{ t: "我等等做", p: "NOPE" }, { t: "我先睡一下", p: "ZZZZ" }, { t: "我再撐一下", p: "BURN" }, { t: "我需要人陪", p: "BABY" }] },
+            { id: 13, q: "半夜肚子餓時：", a: [{ t: "點宵夜", p: "YUMM" }, { t: "查宵夜熱量", p: "CTRL" }, { t: "明天再減肥", p: "RUSH" }, { t: "邊吃邊emo", p: "EMO" }] },
+            { id: 14, q: "你對運動的態度：", a: [{ t: "熱血三天", p: "GOGO" }, { t: "能躺就不動", p: "COZY" }, { t: "有人約才去", p: "BABY" }, { t: "自己安排節奏", p: "SOLO" }] },
+            { id: 15, q: "你買保健食品的原因：", a: [{ t: "最近快不行了", p: "DEAD" }, { t: "網路推薦很多", p: "HEAL" }, { t: "想提升效率", p: "BURN" }, { t: "焦慮健康問題", p: "DRAM" }] },
+            { id: 16, q: "看到別人健身成功：", a: [{ t: "我也突然想開始", p: "GOGO" }, { t: "先存起來", p: "NOPE" }, { t: "分析他的飲食", p: "CTRL" }, { t: "看看就好", p: "COZY" }] },
+            { id: 17, q: "你通常什麼時候喝最多水？", a: [{ t: "口渴到受不了", p: "WATR" }, { t: "運動後狂喝", p: "RUSH" }, { t: "App提醒時", p: "CTRL" }, { t: "吃太鹹後", p: "YUMM" }] },
+            { id: 18, q: "你覺得「早睡早起」是：", a: [{ t: "理論上很好", p: "NOPE" }, { t: "根本不可能", p: "DEAD" }, { t: "我努力過了", p: "ZZZZ" }, { t: "很重要但做不到", p: "EMO" }] },
+            { id: 19, q: "你最常忽略的是：", a: [{ t: "喝水", p: "WATR" }, { t: "吃飯", p: "NPCS" }, { t: "睡覺", p: "BURN" }, { t: "運動", p: "COZY" }] },
+            { id: 20, q: "你開始健康計畫時：", a: [{ t: "先發文紀錄", p: "GOGO" }, { t: "先做Excel表", p: "CTRL" }, { t: "先找朋友一起", p: "BABY" }, { t: "先拖幾天", p: "NOPE" }] },
+            { id: 21, q: "當你心情很差：", a: [{ t: "吃東西", p: "YUMM" }, { t: "窩在床上", p: "COZY" }, { t: "熬夜亂想", p: "EMO" }, { t: "狂工作轉移注意", p: "BURN" }] },
+            { id: 22, q: "你對身體訊號的反應：", a: [{ t: "有點痛就很焦慮", p: "DRAM" }, { t: "通常沒在注意", p: "NPCS" }, { t: "會記錄狀況", p: "CTRL" }, { t: "睡醒再看看", p: "ZZZZ" }] },
+            { id: 23, q: "你突然想減肥時：", a: [{ t: "今天直接不吃晚餐", p: "RUSH" }, { t: "查超多方法", p: "NOPE" }, { t: "計算熱量赤字", p: "CTRL" }, { t: "三天後忘記", p: "GOGO" }] },
+            { id: 24, q: "你最容易在哪裡破功？", a: [{ t: "超商", p: "YUMM" }, { t: "床", p: "ZZZZ" }, { t: "deadline前", p: "BURN" }, { t: "情緒低潮時", p: "EMO" }] },
+            { id: 25, q: "你的健康動力主要來自：", a: [{ t: "想變好看", p: "GOGO" }, { t: "怕生病", p: "DRAM" }, { t: "朋友一起", p: "BABY" }, { t: "想活久一點", p: "HEAL" }] },
+            { id: 26, q: "當別人說「多休息」時：", a: [{ t: "好，但先忙完", p: "BURN" }, { t: "我已經躺一天了", p: "COZY" }, { t: "我等等睡", p: "ZZZZ" }, { t: "我不知道自己累了", p: "NPCS" }] },
+            { id: 27, q: "你對養生的態度：", a: [{ t: "能試都試", p: "HEAL" }, { t: "太麻煩", p: "NOPE" }, { t: "我只相信數據", p: "CTRL" }, { t: "有舒服比較重要", p: "COZY" }] },
+            { id: 28, q: "你最常發生的情況：", a: [{ t: "水壺裝飾用", p: "WATR" }, { t: "運動一天休十天", p: "GOGO" }, { t: "熬夜後開始後悔", p: "EMO" }, { t: "忙到忘記吃飯", p: "NPCS" }] },
+            { id: 29, q: "你覺得自己的生活節奏：", a: [{ t: "超混亂", p: "RUSH" }, { t: "很私人", p: "SOLO" }, { t: "很規律", p: "CTRL" }, { t: "看心情", p: "EMO" }] },
+            { id: 30, q: "如果健康是一款遊戲，你會是：", a: [{ t: "一直重啟新帳號的人", p: "GOGO" }, { t: "已經低電量警告的人", p: "DEAD" }, { t: "默默單機玩家", p: "SOLO" }, { t: "努力生存的NPC", p: "NPCS" }] }
+        ];
+
+
+        // 數位餐盤食材
+        const DIET_ITEMS = [
+            { name: "水煮雞胸", emoji: "🍗", type: "protein" },
+            { name: "燙花椰菜", emoji: "🥦", type: "veg" },
+            { name: "地瓜老薑", emoji: "🍠", type: "staple" },
+            { name: "黑咖啡", emoji: "☕", type: "coffee" },
+            { name: "大份炸雞", emoji: "🍟", type: "fried" },
+            { name: "珍珠奶茶", emoji: "🧋", type: "drink" },
+            { name: "巧克力派", emoji: "🍩", type: "dessert" },
+            { name: "能量飲料", emoji: "⚡", type: "coffee" }
+        ];
+
+        // System Global Reactive State Storage
+        let onboardIndex = 0;
+        let testIndex = 0;
+        let scoreMap = {};
+        let primaryType = "EMO";
+        let secondaryType = "COZY";
+        let completedTasksCount = 0;
+        let plateItems = [];
+
+        // 快速生存儀表板狀態儲存變數
+        let survivalLogData = { mood: "", sleep: "", water: 0, diet: "" };
+
+        const onboardingSlides = [
+            { title: "你不是懶。", body: "許多人做不到健康管理，不是缺乏知識，而是健康方式不適合自己的性格類型。" },
+            { title: "生活方式，也有其專屬密碼。", body: "HBTI 將健康習慣拆解為 16 種趣味人格（EMO, DEAD, BURN, COZY...），用最合適的策略引導你。" },
+            { title: "解鎖行為診斷工作台", body: "丟掉傳統沉悶的打卡框架，用數位餐盤推演、即時簽到互動，以及黑心 AI 的吐槽重新掌握肉體主導權。" }
+        ];
+
+        const splashQuotes = [
+            "「你的健康方式，可能只是跟人格不合。」",
+            "「不是不健康，是你太像期中週的 DEAD 亡魂。」",
+            "「今天也努力精緻且艱難地活著了。」"
+        ];
+
+        // 💡 需求三：儲存進度，重新打開網頁可跳過測驗直接進入儀表板
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // 讀取 localStorage
+            const savedPrimary = localStorage.getItem('hbti_primary');
+            const savedSecondary = localStorage.getItem('hbti_secondary');
+            
+            if (savedPrimary && savedSecondary) {
+                // 若有紀錄則直接進入 Dashboard
+                primaryType = savedPrimary;
+                secondaryType = savedSecondary;
+                
+                document.getElementById('screen-splash').classList.remove('active');
+                document.getElementById('screen-home').classList.add('active');
+                enterDashboard();
+            } else {
+                // 若無紀錄則進入歡迎畫面
+                runSplashScreen();
+            }
+        });
+
+        // 1. Splash Ticker Sequence
+        function runSplashScreen() {
+            let idx = 0;
+            const el = document.getElementById('splash-ticker');
+            el.innerText = splashQuotes[0];
+            
+            const interval = setInterval(() => {
+                idx++;
+                if (idx < splashQuotes.length) {
+                    el.style.opacity = 0;
+                    setTimeout(() => {
+                        el.innerText = splashQuotes[idx];
+                        el.style.opacity = 1;
+                    }, 400);
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('screen-splash').classList.remove('active');
+                        document.getElementById('screen-onboarding').classList.add('active');
+                        initOnboarding();
+                    }, 1000);
+                }
+            }, 2000);
+        }
+
+        // 2. Onboarding Stepper Control
+        function initOnboarding() {
+            onboardIndex = 0;
+            renderOnboard();
+        }
+
+        function renderOnboard() {
+            const slide = onboardingSlides[onboardIndex];
+            const content = document.getElementById('onboard-content');
+            content.style.opacity = 0;
+            content.style.transform = "translateY(10px)";
+            
+            setTimeout(() => {
+                content.innerHTML = `
+                    <div class="w-20 h-20 bg-[#A29BFE]/10 rounded-3xl flex items-center justify-center mx-auto mb-6 text-[#A29BFE]">
+                        <i data-lucide="${onboardIndex === 0 ? 'heart' : onboardIndex === 1 ? 'activity' : 'zap'}" class="w-10 h-10"></i>
+                    </div>
+                    <h2 class="text-3xl font-black tracking-tight text-gray-900 mb-2">${slide.title}</h2>
+                    <p class="text-gray-500 font-medium text-base leading-relaxed px-4">${slide.body}</p>
+                `;
+                
+                for (let i = 0; i < 3; i++) {
+                    const dot = document.getElementById(`dot-${i}`);
+                    if (i === onboardIndex) {
+                        dot.className = "w-8 h-2 rounded-full bg-[#A29BFE] transition-all";
+                    } else {
+                        dot.className = "w-2 h-2 rounded-full bg-gray-200 transition-all";
+                    }
+                }
+                
+                lucide.createIcons();
+                content.style.opacity = 1;
+                content.style.transform = "translateY(0)";
+            }, 250);
+        }
+
+        function nextOnboard() {
+            if (onboardIndex < onboardingSlides.length - 1) {
+                onboardIndex++;
+                renderOnboard();
+            } else {
+                document.getElementById('screen-onboarding').classList.remove('active');
+                document.getElementById('screen-test-start').classList.add('active');
+            }
+        }
+
+        // 3. Diagnosis Core Logic
+        function startTest() {
+            document.getElementById('screen-test-start').classList.remove('active');
+            document.getElementById('screen-test').classList.add('active');
+            testIndex = 0;
+            scoreMap = {};
+            renderQuestion();
+        }
+
+        // 💡 需求四：重新定期測驗
+        function retakeTest() {
+            document.getElementById('screen-home').classList.remove('active');
+            startTest();
+        }
+
+        function renderQuestion() {
+            const qData = QUESTION_BANK[testIndex];
+            document.getElementById('test-progress-text').innerText = `${testIndex + 1} / ${QUESTION_BANK.length}`;
+            document.getElementById('test-progress-bar').style.width = `${((testIndex + 1) / QUESTION_BANK.length) * 100}%`;
+            document.getElementById('test-question-title').innerText = qData.q;
+
+            const optsContainer = document.getElementById('test-options');
+            optsContainer.innerHTML = '';
+
+            qData.a.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-5 bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl shadow-sm font-semibold transition-all duration-200 hover:border-[#A29BFE] flex justify-between items-center group active:scale-[0.99]";
+                btn.innerHTML = `
+                    <span class="pr-4 leading-snug text-gray-700 text-sm md:text-base">${opt.t}</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-gray-300 group-hover:text-[#A29BFE] transition-colors flex-shrink-0"></i>
+                `;
+                btn.onclick = () => selectOption(opt.p);
+                optsContainer.appendChild(btn);
+            });
+            lucide.createIcons();
+        }
+
+        function selectOption(personalityTag) {
+            scoreMap[personalityTag] = (scoreMap[personalityTag] || 0) + 1;
+            
+            const feedbackEl = document.getElementById('test-feedback');
+            if (personalityTag === "DEAD") feedbackEl.innerText = "💥 生存模式強行開啟！";
+            else if (personalityTag === "BURN") feedbackEl.innerText = "🔥 偵測到肝糖與咖啡因劇烈碰撞";
+            else if (personalityTag === "EMO") feedbackEl.innerText = "🌧️ 內耗黑洞電量正高速加載";
+            else if (personalityTag === "ZZZZ") feedbackEl.innerText = "💤 身體自動發出拒絕冬眠指令";
+            else feedbackEl.innerText = `✨ 【${PERSONALITIES[personalityTag]?.name || '特徵'}】行為特質權重提升`;
+            
+            feedbackEl.style.opacity = '1';
+
+            setTimeout(() => {
+                feedbackEl.style.opacity = '0';
+                if (testIndex < QUESTION_BANK.length - 1) {
+                    testIndex++;
+                    renderQuestion();
+                } else {
+                    calculateResults();
+                }
+            }, 450);
+        }
+
+        function calculateResults() {
+            let sorted = Object.entries(scoreMap).sort((a, b) => b[1] - a[1]);
+            
+            primaryType = sorted[0] ? sorted[0][0] : "EMO";
+            secondaryType = sorted[1] ? sorted[1][0] : "COZY";
+
+            if (!PERSONALITIES[primaryType]) primaryType = "EMO";
+            if (!PERSONALITIES[secondaryType]) secondaryType = "COZY";
+
+            // 💡 需求三：更新 localStorage
+            localStorage.setItem('hbti_primary', primaryType);
+            localStorage.setItem('hbti_secondary', secondaryType);
+
+            const pMeta = PERSONALITIES[primaryType];
+            const sMeta = PERSONALITIES[secondaryType];
+
+            document.getElementById('screen-test').classList.remove('active');
+            document.getElementById('screen-result').classList.add('active');
+
+            document.getElementById('result-code').innerText = `${primaryType} × ${secondaryType}`;
+            document.getElementById('result-title').innerText = `${pMeta.name} × ${sMeta.name}（${pMeta.category}）`;
+            document.getElementById('result-analysis').innerText = `你的主導行為模式為【${pMeta.name}】，同時交織著【${sMeta.name}】的深層特質。${pMeta.quote}`;
+            document.getElementById('result-advice').innerText = pMeta.advice;
+
+            const card = document.getElementById('result-card');
+            card.style.background = pMeta.color;
+            card.style.color = pMeta.textCol;
+
+            const tagsContainer = document.getElementById('result-tags');
+            tagsContainer.innerHTML = '';
+            pMeta.tags.forEach(tag => {
+                const sp = document.createElement('span');
+                sp.className = "px-3 py-1 bg-white/20 text-xs font-bold rounded-xl border border-white/10";
+                sp.innerText = `#${tag}`;
+                tagsContainer.appendChild(sp);
+            });
+        }
+
+        function shareCard() {
+            alert(`🎉 分享連結已複製到剪貼簿！快揪同學朋友一起分析他們的 HBTI 作息密碼！`);
+        }
+
+        // 4. Enter Workspace Navigation System
+        function enterDashboard() {
+            document.getElementById('screen-result').classList.remove('active');
+            document.getElementById('screen-home').classList.add('active');
+            
+            const pMeta = PERSONALITIES[primaryType] || PERSONALITIES["DEAD"];
+            
+            // Sync Left Sidebar Info
+            document.getElementById('user-avatar-code').innerText = primaryType.substring(0, 2);
+            document.getElementById('user-profile-name').innerText = `${pMeta.name}特型`;
+
+            // 💡 需求一 & 需求二：在各個面板最上方顯示使用者人格
+            document.getElementById('dashboard-user-personality').innerText = `${pMeta.name} (${primaryType})`;
+            document.getElementById('overview-user-personality').innerText = `${pMeta.name} (${primaryType})`;
+
+            // Sync Main Panel Headers
+            document.getElementById('dash-status-title').innerText = `${pMeta.name} 控制中心`;
+            document.getElementById('dash-status-desc').innerText = pMeta.category;
+            document.getElementById('dash-ai-roast').innerText = pMeta.roast;
+
+            // 渲染生存值儀表板
+            updateGauges();
+
+            // 生成專屬任務
+            const taskContainer = document.getElementById('dash-tasks-list');
+            taskContainer.innerHTML = '';
+            completedTasksCount = 0;
+            document.getElementById('task-count').innerText = `0 / ${pMeta.tasks.length}`;
+
+            pMeta.tasks.forEach((tStr, idx) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center gap-3 bg-white border border-gray-100 p-4 rounded-2xl transition-all cursor-pointer hover:border-gray-200/80 shadow-sm";
+                item.id = `task-card-${idx}`;
+                item.innerHTML = `
+                    <input type="checkbox" id="chk-task-${idx}" onchange="toggleTask(${idx}, ${pMeta.tasks.length})" class="w-4 h-4 rounded text-[#A29BFE] focus:ring-[#A29BFE] border-gray-300 cursor-pointer">
+                    <label for="chk-task-${idx}" class="text-sm font-semibold text-gray-700 flex-1 cursor-pointer select-none">${tStr}</label>
+                `;
+                taskContainer.appendChild(item);
+            });
+
+            // 渲染 16 型人格總覽畫面
+            renderOverviewScreen();
+
+            // 初始化多巴胺沙盒食材按鈕與成就牆庫
+            initDietSandbox();
+            renderBadgesScreen();
+            
+            // 預設跳轉回生存儀表板
+            switchTab('dashboard');
+            lucide.createIcons();
+        }
+
+        // 💡 需求二：動態渲染 16 型人格圖鑑總覽
+        function renderOverviewScreen() {
+            const container = document.getElementById('overview-grid-container');
+            container.innerHTML = '';
+
+            Object.keys(PERSONALITIES).forEach(key => {
+                const p = PERSONALITIES[key];
+                const card = document.createElement('div');
+                card.className = "p-6 rounded-3xl shadow-sm text-white space-y-4 relative overflow-hidden transition-all hover:scale-[1.02] hover:shadow-md";
+                card.style.background = p.color;
+                card.style.color = p.textCol;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-start relative z-10">
+                        <div>
+                            <span class="px-2.5 py-1 bg-white/20 backdrop-blur-sm rounded-lg text-[10px] font-black uppercase tracking-wider border border-white/10">${key}</span>
+                            <h4 class="font-black text-xl mt-2 tracking-wide">${p.name}</h4>
+                        </div>
+                        <i data-lucide="fingerprint" class="w-6 h-6 opacity-60"></i>
+                    </div>
+                    <p class="text-[13px] font-bold opacity-90 leading-relaxed relative z-10">${p.category}</p>
+                    <p class="text-[11px] opacity-80 italic relative z-10 border-l-2 border-white/30 pl-2">"${p.quote}"</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 即時同步聯動生存值儀表板
+        function updateGauges() {
+            let energyMod = 0;
+            let mentalMod = 0;
+            let waterMod = Math.min(100, Math.floor((survivalLogData.water / 2000) * 100));
+
+            if (survivalLogData.mood === '穩定') mentalMod += 15;
+            if (survivalLogData.mood === '焦慮') mentalMod -= 15;
+            if (survivalLogData.mood === '崩潰') mentalMod -= 35;
+            if (survivalLogData.mood === '超棒') mentalMod += 25;
+
+            if (survivalLogData.sleep === '飽足 (>7h)') energyMod += 25;
+            if (survivalLogData.sleep === '略少 (4-6h)') energyMod -= 10;
+            if (survivalLogData.sleep === '爆肝 (<3h)') energyMod -= 40;
+
+            if (survivalLogData.diet === '乾淨原形') { energyMod += 15; mentalMod += 10; }
+            if (survivalLogData.diet === '正常外食') { energyMod += 0; mentalMod += 0; }
+            if (survivalLogData.diet === '邪惡宵夜') { energyMod -= 20; mentalMod -= 15; }
+
+            let baseEnergy = (primaryType === "DEAD" || primaryType === "BURN") ? 25 : 75;
+            let baseMental = (primaryType === "EMO" || primaryType === "DRAM") ? 30 : 80;
+            let baseWater = primaryType === "WATR" ? 20 : 65;
+
+            let finalEnergy = Math.max(0, Math.min(100, baseEnergy + energyMod));
+            let finalMental = Math.max(0, Math.min(100, baseMental + mentalMod));
+            let finalWater = Math.max(0, Math.min(100, baseWater + waterMod));
+
+            const gaugeContainer = document.getElementById('gauge-container');
+            if (!gaugeContainer) return;
+            
+            gaugeContainer.innerHTML = '';
+            const stats = [
+                { n: "精神續命值", v: finalEnergy, c: "bg-[#74B9FF]" },
+                { n: "心理防禦力", v: finalMental, c: "bg-[#A29BFE]" },
+                { n: "純水灌溉度", v: finalWater, c: "bg-[#00CEC9]" }
+            ];
+
+            stats.forEach(s => {
+                const row = document.createElement('div');
+                row.className = "bg-gray-50/80 p-4 rounded-2xl border border-gray-100 space-y-2";
+                row.innerHTML = `
+                    <div class="flex justify-between items-center text-xs font-bold text-gray-500">
+                        <span>${s.n}</span>
+                        <span class="text-sm font-black text-gray-700">${s.v}%</span>
+                    </div>
+                    <div class="w-full h-3 bg-gray-200/60 rounded-full overflow-hidden">
+                        <div class="h-full ${s.c} transition-all duration-500 rounded-full" style="width: ${s.v}%"></div>
+                    </div>
+                `;
+                gaugeContainer.appendChild(row);
+            });
+        }
+
+        // 處理心情、睡眠、飲食的按鈕點擊切換與高亮樣式
+        function logSurvivalStat(type, value, element) {
+            survivalLogData[type] = value;
+            document.getElementById(`log-${type}-val`).innerText = value;
+            
+            const siblings = element.parentNode.children;
+            for (let btn of siblings) {
+                btn.classList.remove(
+                    'bg-[#A29BFE]/15', 'border-[#A29BFE]', 'grayscale-0',
+                    'bg-[#74B9FF]/15', 'border-[#74B9FF]', 'text-[#74B9FF]',
+                    'bg-amber-50', 'border-amber-400', 'text-amber-600'
+                );
+                btn.classList.add('bg-white', 'border-gray-100', 'text-gray-500');
+                if (type === 'mood') btn.classList.add('grayscale');
+            }
+            
+            element.classList.remove('bg-white', 'border-gray-100', 'text-gray-500');
+            if (type === 'mood') {
+                element.classList.remove('grayscale');
+                element.classList.add('bg-[#A29BFE]/15', 'border-[#A29BFE]');
+            } else if (type === 'sleep') {
+                element.classList.add('bg-[#74B9FF]/15', 'border-[#74B9FF]', 'text-[#74B9FF]');
+            } else if (type === 'diet') {
+                element.classList.add('bg-amber-50', 'border-amber-400', 'text-amber-600');
+            }
+            
+            updateGauges();
+            injectDynamicLogRoast();
+        }
+
+        function addSurvivalWater(amount) {
+            survivalLogData.water += amount;
+            document.getElementById('log-water-val').innerText = `${survivalLogData.water} cc`;
+            updateGauges();
+            injectDynamicLogRoast();
+        }
+
+        function resetSurvivalWater() {
+            survivalLogData.water = 0;
+            document.getElementById('log-water-val').innerText = '0 cc';
+            updateGauges();
+            injectDynamicLogRoast();
+        }
+
+        function injectDynamicLogRoast() {
+            const roastBox = document.getElementById('dash-ai-roast');
+            if (!roastBox) return;
+            
+            let extraRoast = "";
+            if (survivalLogData.mood === '崩潰') extraRoast += " 心理防線大崩盤，不要再逼迫自己維持精緻面具了！";
+            if (survivalLogData.sleep === '爆肝 (<3h)') extraRoast += " 昨晚睡眠連3小時都不到？你現在完全是靠意志力在看螢幕。";
+            if (survivalLogData.diet === '邪惡宵夜') extraRoast += " 口罩戴得很勤，結果肚子倒是塞滿了深夜油炸多巴胺。";
+            if (survivalLogData.water >= 1500) extraRoast += " 喝水量突破1500cc！恭喜你，即將擺脫仙人掌乾旱危險期。";
+
+            if (extraRoast !== "") {
+                const currentMeta = PERSONALITIES[primaryType] || PERSONALITIES["DEAD"];
+                roastBox.innerHTML = `${currentMeta.roast} <span class="block mt-2 text-xs text-red-500 font-extrabold border-t border-dashed border-red-200 pt-2">🚨 控制台即時同步回報：${extraRoast}</span>`;
+            }
+        }
+
+        // Global Sidebar Tab Control Router
+        function switchTab(tabId) {
+            const tabs = ['dashboard', 'overview', 'chat', 'badges', 'retest'];
+            tabs.forEach(t => {
+                const subview = document.getElementById(`subview-${t}`);
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (!subview || !navBtn) return;
+                
+                if (t === tabId) {
+                    subview.classList.remove('hidden');
+                    if(t === 'chat') subview.classList.add('flex');
+                    if (t === 'retest') {
+                        navBtn.className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-[#A29BFE] bg-[#A29BFE]/10 border border-[#A29BFE]/30 transition-all text-left mt-4";
+                    } else {
+                        navBtn.className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-[#A29BFE] bg-[#A29BFE]/10 transition-all text-left";
+                    }
+                } else {
+                    subview.classList.add('hidden');
+                    if(t === 'chat') subview.classList.remove('flex');
+                    if (t === 'retest') {
+                        navBtn.className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-50 border border-dashed border-gray-200 transition-all text-left mt-4";
+                    } else {
+                        navBtn.className = "w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-bold text-sm text-gray-400 hover:bg-gray-50 transition-all text-left";
+                    }
+                }
+            });
+            lucide.createIcons();
+        }
+
+        // Task Completion Handler
+        function toggleTask(idx, total) {
+            const chk = document.getElementById(`chk-task-${idx}`);
+            const card = document.getElementById(`task-card-${idx}`);
+            if (chk.checked) {
+                card.classList.add('opacity-50', 'bg-gray-100/70', 'line-through');
+                completedTasksCount++;
+            } else {
+                card.classList.remove('opacity-50', 'bg-gray-100/70', 'line-through');
+                completedTasksCount--;
+            }
+            document.getElementById('task-count').innerText = `${completedTasksCount} / ${total}`;
+        }
+
+        // Interactive Diet Sandbox
+        function initDietSandbox() {
+            const dispenser = document.getElementById('food-dispenser');
+            dispenser.innerHTML = '';
+            DIET_ITEMS.forEach((item, index) => {
+                const block = document.createElement('button');
+                block.className = "p-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-100 rounded-xl transition-all active:scale-95 flex flex-col items-center gap-0.5 shadow-sm";
+                block.innerHTML = `<span class="text-xl">${item.emoji}</span><span class="text-[10px] text-gray-600 truncate w-full">${item.name}</span>`;
+                block.onclick = () => addFoodToPlate(item);
+                dispenser.appendChild(block);
+            });
+            plateItems = [];
+            renderPlate();
+        }
+
+        function addFoodToPlate(item) {
+            if (plateItems.length >= 6) { alert("數位餐盤空間已滿！大腦塞不下更多多巴胺食物了。"); return; }
+            plateItems.push(item);
+            renderPlate();
+        }
+
+        function clearPlate() {
+            plateItems = [];
+            renderPlate();
+        }
+
+        function renderPlate() {
+            const plate = document.getElementById('digital-plate');
+            const placeholder = document.getElementById('plate-placeholder');
+            
+            const currentItems = plate.querySelectorAll('.food-item');
+            currentItems.forEach(el => el.remove());
+
+            if (plateItems.length === 0) {
+                placeholder.style.display = 'block';
+            } else {
+                placeholder.style.display = 'none';
+            }
+
+            plateItems.forEach(item => {
+                const span = document.createElement('span');
+                span.className = "food-item text-2xl select-none transform transition-transform hover:scale-125 cursor-default filter drop-shadow-sm";
+                span.innerText = item.emoji;
+                plate.appendChild(span);
+            });
+            analyzeDiet();
+        }
+
+        function analyzeDiet() {
+            const analysisEl = document.getElementById('diet-analysis');
+            if (plateItems.length === 0) { analysisEl.innerText = "🍱 放入食物來解鎖飲食傾向..."; return; }
+            const counts = { staple: 0, protein: 0, veg: 0, dessert: 0, fried: 0, drink: 0, coffee: 0 };
+            plateItems.forEach(i => counts[i.type]++);
+
+            if (counts.coffee > 0 && plateItems.every(i => i.type === 'coffee')) {
+                analysisEl.innerHTML = "☠️ <span class='text-red-500 font-bold'>DEAD / BURN 警告！</span> 偵測到純咖啡因生命體，靈魂正處於高度燃燒邊緣。";
+            } else if (counts.fried > 0 || counts.drink > 0) {
+                if ((counts.fried + counts.drink) >= plateItems.length * 0.5) {
+                    analysisEl.innerHTML = "🍟 <span class='text-amber-500 font-bold'>YUMM 傾向提高！</span> 快樂多巴胺高度分泌，雖然爽快但記得多喝水！";
+                } else {
+                    analysisEl.innerText = "🍱 混和型多巴胺飲食，精緻與熱量共存。";
+                }
+            } else if (counts.protein > 0 && counts.veg > 0) {
+                analysisEl.innerHTML = "🥗 <span class='text-green-500 font-bold'>CTRL 完美自律！</span> 極其乾淨的原形食物配比，身體神經系統表示高度讚賞。";
+            } else {
+                analysisEl.innerText = "🍱 餐盤組合已記錄，正在推演代謝速率。";
+            }
+        }
+
+        // Chat View Interface Engine
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const logs = document.getElementById('chat-logs');
+            if (!input || !input.value.trim()) return;
+
+            const userText = input.value.trim();
+
+            const userBox = document.createElement('div');
+            userBox.className = "bg-[#2D3436] text-white p-3.5 rounded-2xl rounded-tr-sm max-w-[80%] font-medium ml-auto text-right shadow-sm leading-relaxed";
+            userBox.innerText = userText;
+            logs.appendChild(userBox);
+
+            input.value = '';
+            logs.scrollTop = logs.scrollHeight;
+
+            setTimeout(() => {
+                const aiBox = document.createElement('div');
+                aiBox.className = "bg-gray-50 border border-gray-100 p-4 rounded-2xl rounded-tl-sm max-w-[80%] font-medium text-gray-700 shadow-sm leading-relaxed";
+                
+                let aiResponse = `哼哼，聽起來非常符合你身為 ${PERSONALITIES[primaryType].name} 的行為。大腦模型指出這只是你在用精緻詞彙包裝日常偷懶。明天敢不敢完成生存任務給我看？`;
+                if (userText.includes("熬夜") || userText.includes("晚睡")) {
+                    aiResponse = `又在聊熬夜？真不愧是標標準準的【${PERSONALITIES[primaryType].name}】。你的肝此時此刻正在背景默默哭泣，趕快去躺好！`;
+                } else if (userText.includes("水") || userText.includes("飲料")) {
+                    aiResponse = `喝水不是一口氣灌下兩公升就好，更不是拿珍奶當水喝。你這水分調節機制連路邊的仙人掌看了都直搖頭。`;
+                }
+                
+                aiBox.innerHTML = aiResponse;
+                logs.appendChild(aiBox);
+                logs.scrollTop = logs.scrollHeight;
+            }, 600);
+        }
+
+        // 動態渲染全套 16 大方向分類成就牆在庫
+        function renderBadgesScreen() {
+            const container = document.getElementById('badges-grid-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            BADGES_DATABASE.forEach(cat => {
+                const catSection = document.createElement('div');
+                catSection.className = "bg-white p-6 rounded-3xl border border-gray-100 shadow-sm space-y-4";
+                
+                const catTitle = document.createElement('h3');
+                catTitle.className = "text-sm font-black text-gray-500 tracking-wider border-l-4 border-[#A29BFE] pl-2.5 uppercase";
+                catTitle.innerText = cat.category;
+                catSection.appendChild(catTitle);
+                
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4";
+                
+                cat.items.forEach(b => {
+                    const bEl = document.createElement('div');
+                    
+                    if (b.r) {
+                        // 🛠️ 第十六類：超稀有金色光影呼吸特效成就樣式
+                        bEl.className = `p-4 rounded-2xl border text-center relative flex flex-col items-center justify-center gap-1 transition-all bg-gradient-to-br from-amber-50 to-yellow-100 border-amber-300 shadow-sm rare-gold-badge ${b.u ? 'opacity-100 ring-2 ring-amber-400' : 'opacity-60'}`;
+                        bEl.innerHTML = `
+                            <div class="p-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 text-white mb-1 shadow-sm">
+                                <i data-lucide="sparkles" class="w-5 h-5 animate-spin-slow"></i>
+                            </div>
+                            <span class="text-xs font-black text-amber-900 block">${b.n}</span>
+                            <span class="text-[9px] font-black text-amber-600 block bg-amber-200/50 px-1.5 py-0.5 rounded-full uppercase tracking-tighter mt-1">🏆 稀有度 &lt;0.1%</span>
+                        `;
+                    } else if (b.isHidden || b.isSpecial) {
+                        // 隱藏成就與人格專屬樣式
+                        bEl.className = `p-4 rounded-2xl border text-center relative flex flex-col items-center justify-center gap-1 transition-all ${b.u ? 'bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200 shadow-sm' : 'bg-gray-100/50 border-dashed border-gray-200 opacity-40'}`;
+                        bEl.innerHTML = `
+                            <div class="p-2.5 rounded-xl ${b.u ? 'bg-indigo-500 text-white' : 'bg-gray-200 text-gray-400'} mb-1 shadow-sm">
+                                <i data-lucide="${b.u ? (b.isHidden ? 'eye-off' : 'award') : 'lock'}" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs font-black text-gray-800 block">${b.n}</span>
+                            <span class="text-[10px] font-bold ${b.u ? 'text-indigo-500' : 'text-gray-400'} block">${b.c}</span>
+                        `;
+                    } else {
+                        // 標準普通成就樣式
+                        bEl.className = `p-4 rounded-2xl border text-center relative flex flex-col items-center justify-center gap-1 transition-all ${b.u ? 'bg-white border-gray-100 shadow-sm' : 'bg-gray-100/50 border-dashed border-gray-200 opacity-40'}`;
+                        bEl.innerHTML = `
+                            <div class="p-2.5 rounded-xl ${b.u ? 'bg-[#A29BFE]/10 text-[#A29BFE]' : 'bg-gray-200 text-gray-400'} mb-1">
+                                <i data-lucide="${b.u ? 'shield-check' : 'lock'}" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs font-black text-gray-800 block">${b.n}</span>
+                            <span class="text-[10px] font-bold text-gray-400 block">${b.c}</span>
+                        `;
+                    }
+                    grid.appendChild(bEl);
+                });
+                
+                catSection.appendChild(grid);
+                container.appendChild(catSection);
+            });
+            
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
